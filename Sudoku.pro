@@ -8,5 +8,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += mainwindow.h sudokuwidget.h ui_mainwindow.h
-SOURCES += main.cpp mainwindow.cpp sudokuwidget.cpp
+HEADERS += mainwindow.h sudokuwidget.h ui_mainwindow.h \
+    sudokugrid.h
+SOURCES += main.cpp mainwindow.cpp sudokuwidget.cpp \
+    sudokugrid.cpp

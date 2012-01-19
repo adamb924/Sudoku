@@ -1,57 +1,76 @@
 #include "mainwindow.h"
 #include "sudokuwidget.h"
 
-#include <QHBoxLayout>
-#include <QMenuBar>
-#include <QAction>
-#include <QMessageBox>
+#include <QtGui>
 
 MainWindow::MainWindow()
 {
-    QWidget *widget = new QWidget;
-    setCentralWidget(widget);
-
     sw = new SudokuWidget;
 
-    QMenuBar *menu = new QMenuBar;
-    QAction *step = new QAction("Step",menu);
-    QAction *solve = new QAction("Solve",menu);
-    QAction *clearcalculated = new QAction("Clear Solution",menu);
-    QAction *clearall = new QAction("Clear All",menu);
-    QAction *save = new QAction("Save",menu);
-    QAction *load = new QAction("Load",menu);
-    menu->addAction(step);
-    menu->addAction(solve);
-    menu->addAction(clearcalculated);
-    menu->addAction(clearall);
-    menu->addAction(save);
-    menu->addAction(load);
-    setMenuBar(menu);
+    sw->updateFont("Arial");
 
-    QHBoxLayout *horizontal = new QHBoxLayout;
-    horizontal->addWidget(sw);
+    QMenu *file = new QMenu(tr("File"));
+    QMenu *solution = new QMenu(tr("Solution"));
+    QMenu *language = new QMenu(tr("Numerals"));
 
-    widget->setLayout(horizontal);
+    menuBar()->addMenu(file);
+    menuBar()->addMenu(solution);
+    menuBar()->addMenu(language);
 
-//    connect(step,SIGNAL(triggered()),sw,SLOT(solutionStep(bool)));
-    connect(step,SIGNAL(triggered()),this,SLOT(step()));
-    connect(solve,SIGNAL(triggered()),sw,SLOT(solve()));
-    connect(clearcalculated,SIGNAL(triggered()),sw,SLOT(clearCalculated()));
-    connect(clearall,SIGNAL(triggered()),sw,SLOT(clearAll()));
-    connect(save,SIGNAL(triggered()),sw,SLOT(save()));
-    connect(load,SIGNAL(triggered()),sw,SLOT(load()));
+    file->addAction(tr("Save..."),sw,SLOT(save()));
+    file->addAction(tr("Load..."),sw,SLOT(load()));
+    file->addSeparator();
+    file->addAction(tr("Save SVG without answers..."),sw,SLOT(saveEmptyPuzzle()));
+    file->addAction(tr("Save SVG with answers..."),sw,SLOT(saveSolvedPuzzle()));
+
+    solution->addAction(tr("Step"),sw,SLOT(oneSolutionStep()));
+    solution->addAction(tr("Solve"),sw,SLOT(solve()));
+    solution->addAction(tr("Clear Solution"),sw,SLOT(clearCalculated()));
+    solution->addAction(tr("Clear All"),sw,SLOT(clearAll()));
+
+    QActionGroup *languageGroup = new QActionGroup(this);
+    languageGroup->setExclusive(true);
+    QAction *western = new QAction(tr("Western"),language);
+    western->setData(SudokuWidget::Western);
+    QAction *arabic = new QAction(tr("Arabic"),language);
+    arabic->setData(SudokuWidget::Arabic);
+    QAction *persian = new QAction(tr("Persian"),language);
+    persian->setData(SudokuWidget::Persian);
+    QAction *devanagari = new QAction(tr("Devanagari"),language);
+    devanagari->setData(SudokuWidget::Devanagari);
+    QAction *bengali = new QAction(tr("Bengali"),language);
+    bengali->setData(SudokuWidget::Bengali);
+
+    languageGroup->addAction(western);
+    languageGroup->addAction(arabic);
+    languageGroup->addAction(persian);
+    languageGroup->addAction(devanagari);
+    languageGroup->addAction(bengali);
+
+    western->setChecked(true);
+
+    language->addAction(western);
+    language->addAction(arabic);
+    language->addAction(persian);
+    language->addAction(devanagari);
+    language->addAction(bengali);
+    language->addSeparator();
+    language->addAction(tr("Choose font..."),this,SLOT(selectFont()));
+
+    connect(languageGroup,SIGNAL(triggered(QAction*)),sw,SLOT(changeLanguage(QAction*)));
+
+    setCentralWidget(sw);
 }
 
 MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::changeEvent(QEvent *e)
+void MainWindow::selectFont()
 {
-    QMainWindow::changeEvent(e);
-}
-
-void MainWindow::step()
-{
-    sw->solutionStep(true);
+    QFont font;
+    bool ok = false;
+    font = QFontDialog::getFont(&ok,sw->font(),this);
+    if(ok)
+        sw->updateFont(font.family());
 }

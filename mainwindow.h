@@ -11,12 +11,10 @@ public:
     MainWindow();
     ~MainWindow();
 
-    SudokuWidget *sw;
-
-protected:
-    void changeEvent(QEvent *e);
 private slots:
-    void step();
+    void selectFont();
+private:
+    SudokuWidget *sw;
 };
 
 #endif // MAINWINDOW_H

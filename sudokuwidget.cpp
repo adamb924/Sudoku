@@ -56,6 +56,11 @@ SudokuWidget::SudokuWidget(QWidget *parent)
     wMinorGrid = 1;
 
     selx = -1; sely = -1;
+
+    cLanguageOffset = 0x0030;
+
+    dCellSize = 15;
+    nFontSize = 24;
 }
 
 void SudokuWidget::save()
@@ -119,9 +124,9 @@ void SudokuWidget::load()
     update();
 }
 
-void SudokuWidget::updateFont(const QFont &font)
+void SudokuWidget::updateFont(const QString &font)
 {
-    displayFont.setFamily(font.family());
+    displayFont.setFamily(font);
     adjustSize();
     update();
 }
@@ -133,10 +138,10 @@ QSize SudokuWidget::sizeHint() const
 
 void SudokuWidget::mouseReleaseEvent( QMouseEvent * event )
 {
-    int i, x,y;
+    int x=-1,y=-1;
     if(event->x() > margin && event->x()<width()-margin)
     {
-	for(i = 8; i >= 0; i--)
+        for(int i = 8; i >= 0; i--)
 	{
 	    if( event->x() > (margin+i*cellwidth) )
 	    {
@@ -148,7 +153,7 @@ void SudokuWidget::mouseReleaseEvent( QMouseEvent * event )
 
     if(event->y() > margin && event->y()<width()-margin)
     {
-	for(i = 8; i >= 0; i--)
+        for(int i = 8; i >= 0; i--)
 	{
 	    if( event->y() > (margin+i*cellwidth) )
 	    {
@@ -209,33 +214,23 @@ void SudokuWidget::paintEvent(QPaintEvent *event)
 
     // draw selection box
     if(selx!=-1 && sely!=-1)
-    {
 	painter.fillRect(margin+sely*cellwidth,margin+selx*cellwidth,cellwidth,cellwidth,cCellBackground);
-    }
 
     // draw minor grid lines
     for(i=0; i<10; i++)
     {
 	if(i%3==0)
-	{
 	    painter.setPen(QPen(QBrush(cMajorGrid,Qt::SolidPattern),wMajorGrid));
-	}
 	else
-	{
 	    painter.setPen(QPen(QBrush(cMinorGrid,Qt::SolidPattern),wMinorGrid));
-	}
 	painter.drawLine(margin,margin+i*cellwidth,margin+9*cellwidth,margin+i*cellwidth);
     }
     for(i=0; i<10; i++)
     {
 	if(i%3==0)
-	{
 	    painter.setPen(QPen(QBrush(cMajorGrid,Qt::SolidPattern),wMajorGrid));
-	}
 	else
-	{
 	    painter.setPen(QPen(QBrush(cMinorGrid,Qt::SolidPattern),wMinorGrid));
-	}
 	painter.drawLine(margin+i*cellwidth,margin,margin+i*cellwidth,margin+9*cellwidth);
     }
 
@@ -247,14 +242,12 @@ void SudokuWidget::paintEvent(QPaintEvent *event)
 	    if(value!=-1)
 	    {
 		if(sg.originalValue(i,j))
-		{
 		    painter.setPen(cGivenEntries);
-		}
 		else
-		{
 		    painter.setPen(cCalculatedEntries);
-		}
-		painter.drawText(margin+j*cellwidth,margin+i*cellwidth,cellwidth,cellwidth,Qt::AlignHCenter|Qt::AlignVCenter,QString::number(value));
+
+                //                qDebug() << value << cLanguageOffset << cLanguageOffset + value;
+                painter.drawText(margin+j*cellwidth,margin+i*cellwidth,cellwidth,cellwidth,Qt::AlignHCenter|Qt::AlignVCenter,QString(QChar(cLanguageOffset + value)));
 	    }
 	}
     }
@@ -272,9 +265,7 @@ void SudokuWidget::solutionStep(bool justOne=false)
 void SudokuWidget::solve()
 {
     if(!sg.solve())
-    {
 	QMessageBox::critical(0,"Error","The solver seems not to be making progress. Maybe there is something wrong with the program, or maybe there is something wrong with your input.");
-    }
     update();
 }
 
@@ -295,282 +286,138 @@ void SudokuWidget::clearAll()
     update();
 }
 
-
-void SudokuGrid::setOriginalCell(int x, int y, int value)
+void SudokuWidget::oneSolutionStep()
 {
-    grid[x][y] = value;
-    original[x][y] = true;
+    solutionStep(true);
 }
 
-void SudokuGrid::setCalculatedCell(int x, int y, int value)
+void SudokuWidget::changeLanguage(QAction *action)
 {
-    if(!original[x][y])
+    switch(action->data().toInt())
     {
-	grid[x][y] = value;
-	original[x][y] = false;
+    case Western:
+        cLanguageOffset = 0x0030;
+        break;
+    case Arabic:
+        cLanguageOffset = 0x0660;
+        break;
+    case Persian:
+        cLanguageOffset = 0x06F0;
+        break;
+    case Devanagari:
+        cLanguageOffset = 0x0966;
+        break;
+    case Bengali:
+        cLanguageOffset = 0x09E6;
+        break;
+    default: // Western
+        cLanguageOffset = 0x0030;
+        break;
     }
+
+    update();
 }
 
-int SudokuGrid::numberOfPossibleValues(int x, int y)
+void SudokuWidget::saveEmptyPuzzle()
 {
-    int i, count=0;
-    for(i=1; i<=9; i++)
-    {
-	if(!rowContains(x,i) && !colContains(y,i) && !boxContains(x,y,i))
-	{
-	    count++;
-	}
-    }
-    return count;
+    saveSvg(false);
 }
 
-int SudokuGrid::findValue(int x, int y, int number=1)
+void SudokuWidget::saveSolvedPuzzle()
 {
-    int i, ct=0;
-    for(i=1; i<=9; i++)
-    {
-	if(!rowContains(x,i) && !colContains(y,i) && !boxContains(x,y,i))
-	{
-	    ct++;
-	    if(ct==number)
-	    {
-		return i;
-	    }
-	}
-    }
-    return -1;
+    saveSvg(true);
 }
 
-bool SudokuGrid::rowContains(int x, int value)
+
+void SudokuWidget::saveSvg(bool withAnswers)
 {
-    int j;
-    for(j=0; j<9; j++)
-    {
-	if(grid[x][j]==value)
-	{
-	    return true;
-	}
-    }
-    return false;
-}
+    double dInitial = dCellSize / 2.0;
 
-bool SudokuGrid::colContains(int y, int value)
-{
-    int i;
-    for(i=0; i<9; i++)
-    {
-	if(grid[i][y]==value)
-	{
-	    return true;
-	}
-    }
-    return false;
-}
+    qreal dWidth = 9 * dCellSize;
+    qreal dHeight = 9 * dCellSize;
 
-bool SudokuGrid::boxContains(int x, int y, int value)
-{
-    int fromx, tox, fromy, toy;
-    if(x<6)
+    qreal xpos = dInitial;
+    qreal ypos = dInitial + dCellSize / 2;
+    if( cLanguageOffset == 0x0030 ) // Western
+        ypos = dInitial + dCellSize / 3;
+
+    QString filename = QFileDialog::getSaveFileName(this,tr("Sudoku"),QString(),"SVG Files (*.svg)");
+    if(filename.isEmpty())
+        return;
+
+    if(withAnswers)
     {
-	if(x<3)
-	{
-	    fromx = 0;
-	    tox = 2;
-	}
-	else
-	{
-	    fromx = 3;
-	    tox = 5;
-	}
-    }
-    else
-    {
-	fromx = 6;
-	tox = 8;
+        sg.solve();
+        update();
     }
 
-    if(y<6)
+    QFile file(filename);
+    if(!file.open(QFile::WriteOnly|QFile::Text))
+        return;
+    QXmlStreamWriter w(&file);
+
+    w.setCodec("utf-8");
+    w.writeStartDocument("1.0");
+    w.setAutoFormatting(true);
+
+    w.writeStartElement("svg");
+    w.writeDefaultNamespace("http://www.w3.org/2000/svg");
+    w.writeNamespace ( "http://www.w3.org/1999/xlink", "xlink" );
+    w.writeAttribute("width",QString("%1mm").arg(dWidth));
+    w.writeAttribute("height",QString("%1mm").arg(dHeight));
+    w.writeAttribute("version","1.1");
+
+    w.writeEmptyElement("path");
+    w.writeAttribute("transform","scale(3.543307)");
+    QString path = "";
+    for(int i=0; i<10; i++)
     {
-	if(y<3)
-	{
-	    fromy = 0;
-	    toy = 2;
-	}
-	else
-	{
-	    fromy = 3;
-	    toy = 5;
-	}
+        // horizontal
+        path += QString("M %1,%2 %3,%4 ").arg(0).arg( i * dCellSize ).arg( 9*dCellSize ).arg( i * dCellSize );
+        // vertical
+        path += QString("M %1,%2 %3,%4 ").arg(i * dCellSize).arg( 0 ).arg( i * dCellSize  ).arg( 9*dCellSize );
     }
-    else
+    w.writeAttribute("style","stroke-linecap:round;stroke:#000000;stroke-linecap:butt;stroke-opacity:1.0000000;stroke-width:0.5px;");
+    w.writeAttribute("d",path);
+
+    w.writeEmptyElement("path");
+    w.writeAttribute("transform","scale(3.543307)");
+    path = "";
+    for(int i=0; i<10; i+=3)
     {
-	fromy = 6;
-	toy = 8;
+        // horizontal
+        path += QString("M %1,%2 %3,%4 ").arg(0).arg( i * dCellSize ).arg( 9*dCellSize ).arg( i * dCellSize );
+        // vertical
+        path += QString("M %1,%2 %3,%4 ").arg(i * dCellSize).arg( 0 ).arg( i * dCellSize  ).arg( 9*dCellSize );
     }
+    w.writeAttribute("style","stroke-linecap:round;stroke:#000000;stroke-linecap:butt;stroke-opacity:1.0000000;stroke-width:1px;");
+    w.writeAttribute("d",path);
 
-    return rangeContains(fromx,tox,fromy,toy,value);
-}
-
-bool SudokuGrid::rangeContains(int fromx, int tox, int fromy, int toy, int value)
-{
-    int i, j;
-    for(i=fromx; i<=tox; i++)
+    for(int i=0; i < 9; i++)
     {
-//	for(j=fromy; j<toy; j++)
-	for(j=fromy; j<=toy; j++)
-	{
-	    if(grid[i][j]==value)
-	    {
-		return true;
-	    }
-	}
-    }
-    return false;
-}
+        for(int j=0; j < 9; j++)
+        {
+            if( withAnswers || sg.originalValue(i,j) )
+            {
+                w.writeStartElement("text");
+                w.writeAttribute("style",QString("text-anchor:middle; font-family: %1; font-size: %2mm;").arg(displayFont.family()).arg( dCellSize ));
+                w.writeAttribute("x",QString("%1mm").arg(xpos));
+                w.writeAttribute("y",QString("%1mm").arg(ypos));
 
-bool SudokuGrid::solutionStep(bool justOne=false)
-{
-    int i, j, k, candidate, nposs, minpossibilities=81, mini, minj;
-    for(i=0; i<9; i++)
-    {
-	for(j=0; j<9; j++)
-	{
-	    if(cellValue(i,j)==-1)
-	    {
-		nposs = numberOfPossibleValues(i,j);
+                if(withAnswers)
+                    w.writeTextElement("tspace", QString(QChar(cLanguageOffset + sg.cellValue(i,j))) );
+                else if( !withAnswers && sg.originalValue(i,j) )
+                    w.writeTextElement("tspace", QString(QChar(cLanguageOffset + sg.cellValue(i,j))) );
 
-		if(nposs < minpossibilities)
-		{
-		    minpossibilities = nposs;
-		    mini = i;
-		    minj = j;
-		}
-		if(nposs==1)
-		{
-		    setCalculatedCell(i,j,findValue(i,j));
-		    if(justOne) { return true; }
-		}
-		if(nposs==0)
-		{
-		    return false;
-		}
-	    }
-	}
-    }
-    if(minpossibilities>1) // must be hard
-    {
-	for(k=1; k<=minpossibilities; k++) // cycle through all possibilities
-	{
-	    candidate = findValue(mini,minj,k);
-	    SudokuGrid *hyp = new SudokuGrid(grid);
-	    hyp->setOriginalCell(mini,minj,candidate);
-
-	    if(hyp->solve())
-	    {
-		copySolutionFromGrid(hyp->grid);
-//		setCalculatedCell( mini,minj,hyp->cellValue(mini,minj) );
-//		delete hyp;
-		return true;
-	    }
-	    delete hyp;
-	}
-    }
-    return true;
-}
-
-void SudokuGrid::copySolutionFromGrid(int grd[][9])
-{
-    int i, j;
-    for(i=0; i<9; i++)
-    {
-	for(j=0; j<9; j++)
-	{
-	    if(!originalValue(i,j))
-	    {
-		setCalculatedCell(i,j,grd[i][j]);
-	    }
-	}
-    }
-}
-
-bool SudokuGrid::solve()
-{
-    int last=81, current;
-    do
-    {
-	if(!solutionStep())
-	{
-	    return false;
-	}
-	current = numberOfUnknownCells();
-	if(current==last)
-	{
-	    return false;
-	}
-	last = current;
-    }
-    while(current>0);
-    if(numberOfUnknownCells()==0)
-    {
-	return true;
-    }
-    else
-    {
-	return false;
-    }
-}
-
-int SudokuGrid::cellValue(int x, int y)
-{
-    return grid[x][y];
-}
-
-bool SudokuGrid::originalValue(int x, int y)
-{
-    return original[x][y];
-}
-
-int SudokuGrid::numberOfUnknownCells()
-{
-    int i, j, count = 0;
-    for(i=0; i<9; i++)
-    {
-	for(j=0; j<9; j++)
-	{
-	    if(grid[i][j]==-1)
-	    {
-		count++;
-	    }
-	}
-    }
-    return count;
-}
-
-void SudokuGrid::clearCalculated()
-{
-    int i, j;
-    for(i=0; i<9; i++)
-    {
-	for(j=0; j<9; j++)
-	{
-	    if(!original[i][j])
-	    {
-		grid[i][j] = -1;
-	    }
-	}
+                w.writeEndElement(); // text;
+            }
+            xpos += dCellSize;
+        }
+        xpos = dInitial;
+        ypos += dCellSize;
     }
 
-}
+    w.writeEndElement(); // svg
 
-void SudokuGrid::clearAll()
-{
-    int i, j;
-    for(i=0; i<9; i++)
-    {
-	for(j=0; j<9; j++)
-	{
-	    grid[i][j] = -1;
-	    original[i][j] = false;
-	}
-    }
+    w.writeEndDocument();
 }
