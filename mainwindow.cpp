@@ -31,11 +31,8 @@ MainWindow::MainWindow()
     solution->addSeparator();
     solution->addAction(tr("Solve with report"),sw,SLOT(solvePuzzleWithReport()),QKeySequence("R"));
 
-
     construction->addAction(tr("Build Completed Puzzle"),sw,SLOT(populateGridRandomly()),QKeySequence("P"));
     construction->addAction(tr("Clear All"),sw,SLOT(clearAll()),QKeySequence("X"));
-    construction->addAction(tr("Random population step"),sw,SLOT(randomPopulationStep()),QKeySequence("M"));
-
 
     // to do : store the starting character in the
     languageGroup = new QActionGroup(this);

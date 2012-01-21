@@ -773,16 +773,7 @@ void SudokuWidget::solvePuzzleWithReport()
 
     QVector<double> aBifurcationPoints;
     QVector<double> aZero;
-    int nBifurcationDepth = aPossibleMoveHistory.count(0);
-/*
-    int index = aPossibleMoveHistory.indexOf( 0 );
-    while( index != -1  )
-    {
-        aBifurcationPoints << index + 1;
-        aZero << 0;
-        index = aPossibleMoveHistory.indexOf( 0, index +1 );
-    }
-*/
+
     int index = -1;
     while( (index = aPossibleMoveHistory.indexOf( 0, index +1 ) ) != -1  )
     {
@@ -790,7 +781,7 @@ void SudokuWidget::solvePuzzleWithReport()
         aZero << 0;
     }
 
-    if(nBifurcationDepth > 0)
+    if(aBifurcationPoints.count() > 0)
     {
         QwtPlotCurve *pointsCurve = new QwtPlotCurve("bifurcation points");
         pointsCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -804,7 +795,6 @@ void SudokuWidget::solvePuzzleWithReport()
     qwtPlot->resize(640,480);
     qwtPlot->show();
 
-    nBifurcationDepth = 0;
     aSteps.clear();
     aPossibleMoveHistory.clear();
 }
