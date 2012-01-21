@@ -8,7 +8,8 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += mainwindow.h sudokuwidget.h ui_mainwindow.h \
-    sudokugrid.h
-SOURCES += main.cpp mainwindow.cpp sudokuwidget.cpp \
-    sudokugrid.cpp
+HEADERS += mainwindow.h sudokuwidget.h
+SOURCES += main.cpp mainwindow.cpp sudokuwidget.cpp
+INCLUDEPATH += /Qwt-5.2.1/include
+LIBS += -L./ \
+    -lqwt5

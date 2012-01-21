@@ -5,6 +5,8 @@
 
 class SudokuWidget;
 
+class QActionGroup;
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
@@ -15,6 +17,11 @@ private slots:
     void selectFont();
 private:
     SudokuWidget *sw;
+
+    void makeLanguageAction(const QString& name, quint32 begin);
+
+    QActionGroup *languageGroup;
+    QMenu *language;
 };
 
 #endif // MAINWINDOW_H
