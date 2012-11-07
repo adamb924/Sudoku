@@ -71,7 +71,7 @@ MainWindow::MainWindow()
     makeLanguageAction(tr("Javanese"),0xA9D0);
     makeLanguageAction(tr("Cham"),0xAA50);
     makeLanguageAction(tr("Meetei Mayek"),0xABF0);
-    makeLanguageAction(tr("Osmanya"),0x104A0);
+//    makeLanguageAction(tr("Osmanya"),0x104A0);
 
     languageGroup->actions().first()->setChecked(true);
 
