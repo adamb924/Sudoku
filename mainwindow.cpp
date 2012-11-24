@@ -41,6 +41,7 @@ MainWindow::MainWindow()
     makeLanguageAction(tr("Western"),0x0030);
     makeLanguageAction(tr("Arabic"),0x0660);
     makeLanguageAction(tr("Persian"),0x06F0);
+    makeLanguageAction(tr("Chinese (Suzhou)"),0x3020);
     makeLanguageAction(tr("Devanagari"),0x0966);
     makeLanguageAction(tr("Bengali"),0x09E6);
     makeLanguageAction(tr("Nko"),0x07C0);
