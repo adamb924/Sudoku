@@ -341,6 +341,8 @@ void SudokuWidget::saveSvg(bool withAnswers)
     w.writeAttribute("height",QString("%1mm").arg(dHeight));
     w.writeAttribute("version","1.1");
 
+    w.writeStartElement("g");
+
     w.writeEmptyElement("path");
     w.writeAttribute("transform","scale(3.543307)");
     QString path = "";
@@ -367,6 +369,10 @@ void SudokuWidget::saveSvg(bool withAnswers)
     w.writeAttribute("style","stroke-linecap:round;stroke:#000000;stroke-linecap:butt;stroke-opacity:1.0000000;stroke-width:1px;");
     w.writeAttribute("d",path);
 
+    w.writeEndElement(); // g
+
+    w.writeStartElement("g");
+
     for(int i=0; i < 9; i++)
     {
         for(int j=0; j < 9; j++)
@@ -390,6 +396,7 @@ void SudokuWidget::saveSvg(bool withAnswers)
         xpos = dInitial;
         ypos += dCellSize;
     }
+    w.writeEndElement(); // g
 
     w.writeEndElement(); // svg
 
