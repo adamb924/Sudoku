@@ -7,7 +7,7 @@ MainWindow::MainWindow()
 {
     sw = new SudokuWidget;
 
-    sw->updateFont("Arial");
+    sw->updateFont("Arial Unicode MS");
 
     QMenu *file = new QMenu(tr("File"));
     QMenu *construction = new QMenu(tr("Construction"));
@@ -31,6 +31,7 @@ MainWindow::MainWindow()
     solution->addSeparator();
     solution->addAction(tr("Solve with report"),sw,SLOT(solvePuzzleWithReport()),QKeySequence("R"));
 
+    construction->addAction(tr("Build a puzzle"),sw,SLOT(createPuzzle()),QKeySequence("B"));
     construction->addAction(tr("Build Completed Puzzle"),sw,SLOT(populateGridRandomly()),QKeySequence("P"));
     construction->addAction(tr("Clear All"),sw,SLOT(clearAll()),QKeySequence("X"));
 

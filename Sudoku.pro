@@ -3,13 +3,13 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 
+TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
 HEADERS += mainwindow.h sudokuwidget.h
 SOURCES += main.cpp mainwindow.cpp sudokuwidget.cpp
-INCLUDEPATH += /Qwt-5.2.1/include
+INCLUDEPATH += C:/Qt/4.7.1/qt/include/Qwt
 LIBS += -L./ \
     -lqwt5

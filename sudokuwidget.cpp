@@ -82,24 +82,24 @@ void SudokuWidget::save()
     QString fileName = QFileDialog::getSaveFileName(this,tr("Save File"), "", tr("Sudoku Files (*.sdk)"));
     if (!fileName.isEmpty())
     {
-	QFile file(fileName);
-	if (!file.open(QFile::WriteOnly | QFile::Text))
-	{
-	    QMessageBox::warning(this, tr("Codecs"),tr("Cannot write file %1:\n%2").arg(fileName).arg(file.errorString()));
-	    return;
-	}
-	else
-	{
-	    QTextStream out(&file);
-	    out.setCodec("UTF-8");
-	    for(i=0; i<9; i++)
-	    {
-		for(j=0; j<9; j++)
-		{
+        QFile file(fileName);
+        if (!file.open(QFile::WriteOnly | QFile::Text))
+        {
+            QMessageBox::warning(this, tr("Codecs"),tr("Cannot write file %1:\n%2").arg(fileName).arg(file.errorString()));
+            return;
+        }
+        else
+        {
+            QTextStream out(&file);
+            out.setCodec("UTF-8");
+            for(i=0; i<9; i++)
+            {
+                for(j=0; j<9; j++)
+                {
                     out << cellValue(i,j) << " ";
-		}
-	    }
-	}
+                }
+            }
+        }
     }
 }
 
@@ -109,30 +109,30 @@ void SudokuWidget::load()
     QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"), "", tr("Sudoku Files (*.sdk)"));
     if (!fileName.isEmpty())
     {
-	QFile file(fileName);
-	if (!file.open(QFile::ReadOnly | QFile::Text))
-	{
-	    QMessageBox::warning(this, tr("Codecs"),tr("Cannot read file %1:\n%2").arg(fileName).arg(file.errorString()));
-	    return;
-	}
-	else
-	{
-	    clearAll();
+        QFile file(fileName);
+        if (!file.open(QFile::ReadOnly | QFile::Text))
+        {
+            QMessageBox::warning(this, tr("Codecs"),tr("Cannot read file %1:\n%2").arg(fileName).arg(file.errorString()));
+            return;
+        }
+        else
+        {
+            clearAll();
 
-	    QTextStream out(&file);
-	    out.setCodec("UTF-8");
-	    for(i=0; i<9; i++)
-	    {
-		for(j=0; j<9; j++)
-		{
-		    out >> tmp;
-		    if(tmp!=-1)
-		    {
+            QTextStream out(&file);
+            out.setCodec("UTF-8");
+            for(i=0; i<9; i++)
+            {
+                for(j=0; j<9; j++)
+                {
+                    out >> tmp;
+                    if(tmp!=-1)
+                    {
                         setOriginalCell(i,j,tmp);
-		    }
-		}
-	    }
-	}
+                    }
+                }
+            }
+        }
     }
     update();
 }
@@ -155,34 +155,34 @@ void SudokuWidget::mouseReleaseEvent( QMouseEvent * event )
     if(event->x() > margin && event->x()<width()-margin)
     {
         for(int i = 8; i >= 0; i--)
-	{
-	    if( event->x() > (margin+i*cellwidth) )
-	    {
-		y = i;
-		break;
-	    }
-	}
+        {
+            if( event->x() > (margin+i*cellwidth) )
+            {
+                y = i;
+                break;
+            }
+        }
     }
 
     if(event->y() > margin && event->y()<width()-margin)
     {
         for(int i = 8; i >= 0; i--)
-	{
-	    if( event->y() > (margin+i*cellwidth) )
-	    {
-		x = i;
-		break;
-	    }
-	}
+        {
+            if( event->y() > (margin+i*cellwidth) )
+            {
+                x = i;
+                break;
+            }
+        }
     }
 
     if(x==selx && y==sely)
     {
-	selx=-1; sely=-1;
+        selx=-1; sely=-1;
     }
     else
     {
-	selx = x; sely = y;
+        selx = x; sely = y;
     }
 
     update();
@@ -193,19 +193,19 @@ void SudokuWidget::keyReleaseEvent( QKeyEvent * event )
 {
     if(selx!=-1 && sely!=-1)
     {
-	if(event->text()==" ")
-	{
+        if(event->text()==" ")
+        {
             setOriginalCell(selx,sely,-1);
-	}
-	else
-	{
-	    int value = event->text().toInt();
-	    if(value >=1 && value <= 9)
-	    {
+        }
+        else
+        {
+            int value = event->text().toInt();
+            if(value >=1 && value <= 9)
+            {
                 setOriginalCell(selx,sely,value);
-	    }
-	}
-	update();
+            }
+        }
+        update();
     }
     QWidget::keyReleaseEvent(event);
 }
@@ -227,41 +227,41 @@ void SudokuWidget::paintEvent(QPaintEvent *event)
 
     // draw selection box
     if(selx!=-1 && sely!=-1)
-	painter.fillRect(margin+sely*cellwidth,margin+selx*cellwidth,cellwidth,cellwidth,cCellBackground);
+        painter.fillRect(margin+sely*cellwidth,margin+selx*cellwidth,cellwidth,cellwidth,cCellBackground);
 
     // draw minor grid lines
     for(int i=0; i<10; i++)
     {
-	if(i%3==0)
-	    painter.setPen(QPen(QBrush(cMajorGrid,Qt::SolidPattern),wMajorGrid));
-	else
-	    painter.setPen(QPen(QBrush(cMinorGrid,Qt::SolidPattern),wMinorGrid));
-	painter.drawLine(margin,margin+i*cellwidth,margin+9*cellwidth,margin+i*cellwidth);
+        if(i%3==0)
+            painter.setPen(QPen(QBrush(cMajorGrid,Qt::SolidPattern),wMajorGrid));
+        else
+            painter.setPen(QPen(QBrush(cMinorGrid,Qt::SolidPattern),wMinorGrid));
+        painter.drawLine(margin,margin+i*cellwidth,margin+9*cellwidth,margin+i*cellwidth);
     }
     for(int i=0; i<10; i++)
     {
-	if(i%3==0)
-	    painter.setPen(QPen(QBrush(cMajorGrid,Qt::SolidPattern),wMajorGrid));
-	else
-	    painter.setPen(QPen(QBrush(cMinorGrid,Qt::SolidPattern),wMinorGrid));
-	painter.drawLine(margin+i*cellwidth,margin,margin+i*cellwidth,margin+9*cellwidth);
+        if(i%3==0)
+            painter.setPen(QPen(QBrush(cMajorGrid,Qt::SolidPattern),wMajorGrid));
+        else
+            painter.setPen(QPen(QBrush(cMinorGrid,Qt::SolidPattern),wMinorGrid));
+        painter.drawLine(margin+i*cellwidth,margin,margin+i*cellwidth,margin+9*cellwidth);
     }
 
     for(int i=0; i<9; i++)
     {
         for(int j=0; j<9; j++)
-	{
+        {
             value = cellValue(i,j);
-	    if(value!=-1)
-	    {
+            if(value!=-1)
+            {
                 if(originalValue(i,j))
-		    painter.setPen(cGivenEntries);
-		else
-		    painter.setPen(cCalculatedEntries);
+                    painter.setPen(cGivenEntries);
+                else
+                    painter.setPen(cCalculatedEntries);
 
                 painter.drawText(margin+j*cellwidth,margin+i*cellwidth,cellwidth,cellwidth,Qt::AlignHCenter|Qt::AlignVCenter,QString(QChar(cLanguageOffset + value)));
-	    }
-	}
+            }
+        }
     }
 
 
@@ -413,6 +413,33 @@ void SudokuWidget::populateGridRandomly()
 */
     setNonEmptyToOriginal();
     update();
+}
+
+void SudokuWidget::createPuzzle()
+{
+    bool ok;
+    double proportion = QInputDialog::getDouble(this, tr("Create a random puzzle"),
+                                       tr("Proportion of cells filled:"), 0.5, 0, 1, 2, &ok);
+    if (ok)
+    {
+        clearAll();
+        solve(true,true);
+
+        for(int i=0; i<9; i++)
+        {
+            for(int j=0; j<9; j++)
+            {
+                if( proportion < random() )
+                {
+                    grid[i][j] = -1;
+                    original[i][j] = false;
+                }
+            }
+        }
+
+        setNonEmptyToOriginal();
+        update();
+    }
 }
 
 void SudokuWidget::randomPopulationStep()
@@ -713,6 +740,11 @@ void SudokuWidget::clearAll()
 int SudokuWidget::randomUpTo(int ceiling) const
 {
     return 1 + qRound( ((qreal)qrand()/(qreal)RAND_MAX) * (qreal)(ceiling-1));
+}
+
+double SudokuWidget::random() const
+{
+    return (double)qrand()/(double)RAND_MAX;
 }
 
 void SudokuWidget::nthUnknownCell(int &i, int &j, int which) const

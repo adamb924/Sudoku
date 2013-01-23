@@ -34,6 +34,7 @@ public slots:
     void saveSolvedPuzzle();
 
     void populateGridRandomly();
+    void createPuzzle();
 
     void changeLanguage(QAction *action);
     void clearAll();
@@ -67,6 +68,7 @@ private:
     int numberOfPossibleMoves() const;
 
     int randomUpTo(int ceiling) const;
+    double random() const;
 
 
 
