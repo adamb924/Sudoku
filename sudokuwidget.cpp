@@ -384,10 +384,14 @@ void SudokuWidget::saveSvg(bool withAnswers)
                 w.writeAttribute("x",QString("%1mm").arg(xpos));
                 w.writeAttribute("y",QString("%1mm").arg(ypos));
 
-                if(withAnswers)
-                    w.writeTextElement("tspace", QString(QChar(cLanguageOffset + cellValue(i,j))) );
-                else if( !withAnswers && originalValue(i,j) )
-                    w.writeTextElement("tspace", QString(QChar(cLanguageOffset + cellValue(i,j))) );
+                if( withAnswers || originalValue(i,j) )
+                {
+                    w.writeStartElement("tspan");
+                    if( cLanguageOffset != 0x0030 )
+                        w.writeAttribute("style", "baseline-shift: 0.2em;");
+                    w.writeCharacters( QString(QChar(cLanguageOffset + cellValue(i,j))) );
+                    w.writeEndElement();
+                }
 
                 w.writeEndElement(); // text;
             }
