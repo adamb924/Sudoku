@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "sudokuwidget.h"
 
-#include <QtGui>
+#include <QtWidgets>
 
 MainWindow::MainWindow()
 {

@@ -1,10 +1,10 @@
-#include <QtGui>
+#include <QtWidgets>
 
 #include "sudokuwidget.h"
 
-#include <qwt_plot.h>
-#include <qwt_plot_curve.h>
-#include <qwt_symbol.h>
+#include <qwt/qwt_plot.h>
+#include <qwt/qwt_plot_curve.h>
+#include <qwt/qwt_symbol.h>
 
 SudokuWidget::SudokuWidget(QWidget *parent)
     : QWidget(parent)
@@ -807,7 +807,7 @@ void SudokuWidget::solvePuzzleWithReport()
     QwtPlotCurve *waveCurve = new QwtPlotCurve("dummy");
     waveCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
     waveCurve->setPen(QPen(Qt::blue));
-    waveCurve->setData(aSteps,aPossibleMoveHistory);
+    waveCurve->setSamples(aSteps,aPossibleMoveHistory);
     waveCurve->attach(qwtPlot);
 
     qwtPlot->setWindowTitle("Available solutions over time");
@@ -829,8 +829,8 @@ void SudokuWidget::solvePuzzleWithReport()
         QwtPlotCurve *pointsCurve = new QwtPlotCurve("bifurcation points");
         pointsCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
         pointsCurve->setStyle(QwtPlotCurve::Dots);
-        pointsCurve->setSymbol(QwtSymbol(QwtSymbol::XCross,QBrush(Qt::red),QPen(Qt::red),QSize(7,7)));
-        pointsCurve->setData(aBifurcationPoints,aZero);
+        pointsCurve->setSymbol(new QwtSymbol(QwtSymbol::XCross,QBrush(Qt::red),QPen(Qt::red),QSize(7,7)));
+        pointsCurve->setSamples(aBifurcationPoints,aZero);
         pointsCurve->attach(qwtPlot);
     }
 
